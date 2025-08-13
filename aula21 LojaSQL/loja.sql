@@ -128,7 +128,7 @@ INSERT INTO pedido_item (id_pedido, id_estoque, quantidade, preco_unitario) VALU
 INSERT INTO pedido (id, data_pedido, cliente_nome, valor_total) VALUES (9, '2024-08-20', 'Daniela Rocha', 449.90);
 INSERT INTO pedido_item (id_pedido, id_estoque, quantidade, preco_unitario) VALUES (9, 8, 1, 449.90);
 
--- Venda 10: 1x Tênis Nike Air Max (estoque.id = 1) e 1x Chinelo Havaianas Slim (estoque.id = 2)
+-- Venda 10: 1x Tênis Nike Air Max (estoque.id = 1) e 1x Chinelo Havaianas Slim(estoque.id = 2)
 INSERT INTO pedido (id, data_pedido, cliente_nome, valor_total) VALUES (10, '2024-08-22', 'Carlos Silva', 449.80);
 INSERT INTO pedido_item (id_pedido, id_estoque, quantidade, preco_unitario) VALUES (10, 1, 1, 399.90);
 INSERT INTO pedido_item (id_pedido, id_estoque, quantidade, preco_unitario) VALUES (10, 2, 1, 49.90);
