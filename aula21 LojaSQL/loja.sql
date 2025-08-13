@@ -2,7 +2,7 @@ CREATE DATABASE if not exists loja;
 
 use loja;
 -- Tabela de categorias
-CREATE TABLE categoria (
+CREATE TABLE if not exists categoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(50) NOT NULL
 );
