@@ -1,0 +1,52 @@
+body{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    height: 700px;
+}
+
+
+#div1{
+    /*LARGURA DO DIV*/
+    width:40%;
+    /*ALTURA DO DIV*/
+    height: 20%;
+    background-color: rgb(190, 18, 190);
+    padding: 30px 50px;
+    margin: 50px;
+    border: 15px dashed  rgb(0, 0, 0);
+   
+}
+
+#div2{
+    /*LARGURA DO DIV*/
+    width:40%;
+    /*ALTURA DO DIV*/
+    height: 20%;
+    background-color: rgb(190, 18, 18);
+    padding: 30px 50px;
+    margin: 50px;
+    border: 5px dashed  rgb(107, 0, 91);
+    border-radius: 100%;
+}
+#div3{
+    /*LARGURA DO DIV*/
+    width:40%;
+    /*ALTURA DO DIV*/
+    height: 20%;
+    background-color: rgb(190, 18, 90);
+    padding: 30px 50px;
+    margin: 50px;
+    border: 5px dashed  rgb(204, 255, 0);
+    
+}
+
+#div4{
+    /*LARGURA DO DIV*/
+    width:40%;
+    /*ALTURA DO DIV*/
+    height: 20%;
+    background-color: rgb(190, 161, 18);
+    padding: 30px 50px;
+    margin: 50px;
+    border: 5px dashed  rgb(0, 0, 0);
+    border-radius: 100%;
+}

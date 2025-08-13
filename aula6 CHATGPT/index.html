@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo da Nota Final</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cálculo da Nota Final</h1>
+        <form id="formulario">
+            <div class="input-group">
+                <label for="nome">Nome do Estudante:</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="input-group">
+                <label for="nota1">Nota Atividade 1:</label>
+                <input type="number" id="nota1" min="0" max="10" required>
+            </div>
+            <div class="input-group">
+                <label for="nota2">Nota Atividade 2:</label>
+                <input type="number" id="nota2" min="0" max="10" required>
+            </div>
+            <div class="input-group">
+                <label for="nota3">Nota Atividade 3:</label>
+                <input type="number" id="nota3" min="0" max="10" required>
+            </div>
+            <button type="button" onclick="calcularNota()">Calcular Nota Final</button>
+        </form>
+
+        <div class="resultado">
+            <h2>Resultado:</h2>
+            <p id="resultado"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

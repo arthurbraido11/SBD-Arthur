@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HEROIS DA HISTORIA</title>
+  <style>
+    /* Estilo do jogo (sem modificações) */
+    body {
+      font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+      margin: 0;
+      padding: 0;
+      background: url('https://i.pinimg.com/736x/ea/58/81/ea58811b723da3dfd2a74c395a071677.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Estilo dos botões e tela inicial */
+    #startScreen, #difficultyScreen {
+      text-align: center;
+      z-index: 100;
+    }
+
+    #startButton, .difficultyButton {
+      padding: 15px 30px;
+      font-size: 20px;
+      background-color: #09a516;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #startButton:hover, .difficultyButton:hover {
+      background-color: #067c10;
+    }
+
+    #gameContainer {
+      display: none;
+      text-align: center;
+      color: white;
+    }
+
+    #infoPanel {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      position: relative;
+    }
+
+    #score, #timer {
+      font-size: 30px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 10px 20px;
+    }
+
+    #gameBoard {
+      display: grid;
+      grid-template-columns: repeat(4, 120px);
+      grid-gap: 15px;
+      margin-top: 30px;
+      justify-content: center;
+      transition: transform 0.5s ease;
+    }
+
+    .card {
+      width: 120px;
+      height: 120px;
+      perspective: 1000px;
+      transition: transform 0.5s ease;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+    }
+
+    .card-front {
+      background-color: #000;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background-size: cover;
+      background-position: center;
+    }
+
+    .card.matched {
+      background-color: #28a745;
+      color: white;
+      cursor: default;
+      animation: match 1s ease-out;
+    }
+
+    @keyframes match {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    h2 {
+      font-size: 40px;
+      margin-top: 20px;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .button-fade {
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #timer {
+      background-color: rgba(255, 0, 0, 0.7);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Tela Inicial -->
+  <div id="startScreen" class="button-fade">
+    <h1>HEROIS DA HISTORIA</h1>
+    <button id="startButton">Iniciar Jogo</button>
+  </div>
+
+  <!-- Tela de Seleção de Dificuldade -->
+  <div id="difficultyScreen" class="button-fade" style="display: none;">
+    <h1>Escolha a Dificuldade</h1>
+    <button class="difficultyButton" id="easyButton">Fácil</button>
+    <button class="difficultyButton" id="mediumButton">Médio</button>
+    <button class="difficultyButton" id="hardButton">Difícil</button>
+  </div>
+
+  <!-- Jogo -->
+  <div id="gameContainer" class="button-fade">
+    <h2>Jogo da Memória - Times de Futebol</h2>
+    <div id="infoPanel">
+      <div id="score">Pontuação: 0</div>
+      <div id="timer">Tempo: 120s</div>
+    </div>
+    <div id="gameBoard"></div>
+  </div>
+
+  <!-- Sons -->
+  <audio id="flipSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  <audio id="matchSound" src="https://www.soundjay.com/button/beep-08b.wav" preload="auto"></audio>
+  <audio id="gameOverSound" src="https://www.soundjay.com/button/coin-insert-01.wav" preload="auto"></audio>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const startScreen = document.getElementById('startScreen');
+    const difficultyScreen = document.getElementById('difficultyScreen');
+    const gameContainer = document.getElementById('gameContainer');
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+
+    let score = 0;
+    let matchedPairs = 0;
+    let timeLeft = 120;
+    let timerInterval;
+    let teamLogos;
+    let flippedCards = [];
+    let lockBoard = false;
+    let attempts = 0;
+    const maxAttempts = 15;
+
+    const flipSound = document.getElementById('flipSound');
+    const matchSound = document.getElementById('matchSound');
+    const gameOverSound = document.getElementById('gameOverSound');
+
+    startButton.onclick = () => {
+      startScreen.style.display = 'none';
+      difficultyScreen.style.display = 'block';
+    };
+
+    document.getElementById('easyButton').onclick = () => setDifficulty('easy');
+    document.getElementById('mediumButton').onclick = () => setDifficulty('medium');
+    document.getElementById('hardButton').onclick = () => setDifficulty('hard');
+
+    function setDifficulty(level) {
+      difficultyScreen.style.display = 'none';
+      gameContainer.style.display = 'block';
+
+      switch(level) {
+        case 'easy':
+          timeLeft = 180;
+          break;
+        case 'medium':
+          timeLeft = 120;
+          break;
+        case 'hard':
+          timeLeft = 90;
+          break;
+      }
+
+      teamLogos = [
+        'https://cdn.ligadosgames.com/imagens/logo-de-flamengo-dls-2024.jpg?class=article',
+        'https://lncimg.lance.com.br/cdn-cgi/image/width=960,height=1200,quality=75,background=white,fit=pad/uploads/2024/09/escudo-palmeiras-aspect-ratio-512-320.jpg',
+        'https://images.seeklogo.com/logo-png/12/1/sao-paulo-futebol-clube-logo-png_seeklogo-122586.png',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcpyFiulZI2MLf_d9C_DqRFVPNWTxuf1tezQ&s',
+        'https://images.seeklogo.com/logo-png/14/1/vasco-da-gama-logo-png_seeklogo-147635.png',
+        'https://logowik.com/content/uploads/images/cruzeiro-esporte-clube7367.jpg',
+        'https://i.pinimg.com/736x/9c/db/98/9cdb98b258c176d4ae053c4dc28c11fc.jpg',
+        'https://down-br.img.susercontent.com/file/br-11134207-7r98o-m3577q1hhafn7b'
+      ];
+
+      startGame();
+    }
+
+    function startGame() {
+      const board = document.getElementById('gameBoard');
+
+      let cards = [];
+      score = 0;
+      matchedPairs = 0;
+      flippedCards = [];
+      lockBoard = false;
+      attempts = 0;
+      updateScore();
+      updateTimer();
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          gameOverSound.play();
+          alert("⏰ Tempo esgotado! Sua pontuação final: " + score);
+          location.reload();
+        }
+      }, 1000);
+
+      board.innerHTML = '';
+      cards = [...teamLogos, ...teamLogos].sort(() => Math.random() - 0.5);
+
+      cards.forEach(logo => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = ` 
+          <div class="card-inner">
+            <div class="card-front"></div>
+            <div class="card-back" style="background-image: url('${logo}');"></div>
+          </div>
+        `;
+        card.dataset.logo = logo;
+        card.onclick = () => flipCard(card);
+        board.appendChild(card);
+      });
+
+      function flipCard(card) {
+        if (lockBoard || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+        flipSound.play();
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) checkMatch();
+      }
+
+      function checkMatch() {
+        lockBoard = true;
+        const [a, b] = flippedCards;
+
+        if (a.dataset.logo === b.dataset.logo) {
+          matchSound.play();
+          a.classList.add('matched');
+          b.classList.add('matched');
+          score += 10;
+          matchedPairs++;
+          timeLeft += 5; // Adiciona 5 segundos em caso de acerto
+          resetFlipped();
+          updateScore();
+          updateTimer();
+
+          if (matchedPairs === teamLogos.length) {
+            clearInterval(timerInterval);
+            setTimeout(() => {
+              alert('🏆 Parabéns! Você venceu com ' + score + ' pontos!');
+              location.reload();
+            }, 500);
+          }
+
+        } else {
+          score = Math.max(0, score - 2);
+          timeLeft = Math.max(0, timeLeft - 5);  // Subtrai 5 segundos em caso de erro
+          attempts++;
+
+          // Penaliza severamente após o máximo de tentativas
+          if (attempts >= maxAttempts) {
+            timeLeft = 0;
+            clearInterval(timerInterval);
+            gameOverSound.play();
+            alert("Você excedeu o número de tentativas! Sua pontuação final: " + score);
+            location.reload();
+          }
+
+          updateScore();
+          updateTimer();
+          setTimeout(() => {
+            a.classList.remove('flipped');
+            b.classList.remove('flipped');
+            resetFlipped();
+          }, 800);
+        }
+      }
+
+      function updateScore() {
+        scoreDisplay.textContent = 'Pontuação: ' + score;
+      }
+
+      function updateTimer() {
+        timerDisplay.textContent = 'Tempo: ' + timeLeft + 's';
+      }
+
+      function resetFlipped() {
+        flippedCards = [];
+        lockBoard = false;
+      }
+    }
+  </script>
+
+</body>
+</html>
